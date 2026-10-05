@@ -14,3 +14,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "azs" {
+  description = "Availability zones to spread subnets across"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
+}
