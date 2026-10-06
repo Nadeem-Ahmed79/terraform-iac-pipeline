@@ -65,3 +65,75 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+
+# ---------- Security group: web tier ----------
+resource "aws_security_group" "web" {
+  name        = "${var.name}-web-sg"
+  description = "Allow HTTP/HTTPS from the internet"
+  vpc_id      = aws_vpc.this.id
+  tags        = merge(var.tags, { Name = "${var.name}-web-sg" })
+
+  ingress {
+    description = "HTTP from internet"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS from internet"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "All outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# ---------- Security group: database tier ----------
+resource "aws_security_group" "db" {
+  name        = "${var.name}-db-sg"
+  description = "Allow Postgres only from the web tier"
+  vpc_id      = aws_vpc.this.id
+  tags        = merge(var.tags, { Name = "${var.name}-db-sg" })
+
+  ingress {
+    description     = "Postgres from web SG only"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web.id]
+  }
+
+  egress {
+    description = "Outbound only inside the VPC"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [var.vpc_cidr]
+  }
+}
+
+# ---------- Security group: SSH admin access ----------
+resource "aws_security_group" "ssh" {
+  name        = "${var.name}-ssh-sg"
+  description = "SSH from admin range only"
+  vpc_id      = aws_vpc.this.id
+  tags        = merge(var.tags, { Name = "${var.name}-ssh-sg" })
+
+  ingress {
+    description = "SSH from admin CIDR"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.admin_cidr]
+  }
+}

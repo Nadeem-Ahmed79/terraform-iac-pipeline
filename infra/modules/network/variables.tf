@@ -20,3 +20,14 @@ variable "azs" {
   type        = list(string)
   default     = ["us-east-1a", "us-east-1b"]
 }
+
+variable "admin_cidr" {
+  description = "IP range allowed to SSH (must never be the whole internet)"
+  type        = string
+  default     = "10.0.0.0/16"
+
+  validation {
+    condition     = var.admin_cidr != "0.0.0.0/0"
+    error_message = "admin_cidr must not be 0.0.0.0/0 (SSH open to the whole internet)."
+  }
+}
