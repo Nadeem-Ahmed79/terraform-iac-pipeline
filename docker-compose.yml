@@ -7,5 +7,9 @@ services:
     environment:
       - SERVICES=s3,ec2,iam,secretsmanager,sts
       - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - PERSISTENCE=1
+      - SNAPSHOT_SAVE_STRATEGY=ON_REQUEST
     volumes:
+      - "./volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    stop_grace_period: 60s
