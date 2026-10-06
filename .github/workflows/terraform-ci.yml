@@ -60,3 +60,12 @@ jobs:
           directory: infra
           framework: terraform
           quiet: true
+
+  # ---------- Job 5: policy unit tests ----------
+  policy-tests:
+    name: Policy tests (Conftest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: conftest verify
+        run: docker run --rm -v "$PWD:/project" -w /project openpolicyagent/conftest:v0.64.0 verify --policy policies
