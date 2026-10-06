@@ -1,8 +1,9 @@
 terraform {
   required_version = ">= 1.10"
   required_providers {
-    aws  = { source = "hashicorp/aws", version = "~> 5.0" }
-    kind = { source = "tehcyx/kind", version = ">= 0.6" }
+    aws        = { source = "hashicorp/aws", version = "~> 5.0" }
+    kind       = { source = "tehcyx/kind", version = ">= 0.6" }
+    kubernetes = { source = "hashicorp/kubernetes", version = ">= 2.20" }
   }
 }
 
@@ -34,3 +35,11 @@ provider "aws" {
 }
 
 provider "kind" {}
+
+# Connects to the kind cluster using the cluster module's outputs
+provider "kubernetes" {
+  host                   = module.cluster.endpoint
+  client_certificate     = module.cluster.client_certificate
+  client_key             = module.cluster.client_key
+  cluster_ca_certificate = module.cluster.cluster_ca_certificate
+}

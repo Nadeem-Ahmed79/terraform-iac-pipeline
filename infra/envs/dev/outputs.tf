@@ -17,3 +17,7 @@ output "cluster_endpoint" {
 output "kubeconfig_path" {
   value = module.cluster.kubeconfig_path
 }
+
+output "app_namespace" {
+  value = module.app.namespace
+}
