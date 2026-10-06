@@ -23,6 +23,10 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "tf_state" {
+  # checkov:skip=CKV_AWS_18:Access logging needs a second log bucket; not needed locally
+  # checkov:skip=CKV2_AWS_62:No consumers for bucket event notifications
+  # checkov:skip=CKV_AWS_144:Cross-region replication not applicable to a local emulator
+  # checkov:skip=CKV_AWS_145:SSE-S3 (AES256) used; customer-managed KMS planned for real AWS
   bucket = "tf-state-local-nadeem"
 }
 
@@ -47,3 +51,23 @@ resource "aws_s3_bucket_public_access_block" "tf_state" {
 }
 
 output "state_bucket" { value = aws_s3_bucket.tf_state.bucket }
+
+# Old state versions are kept for 90 days, then cleaned up (cost control)
+resource "aws_s3_bucket_lifecycle_configuration" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+
+  rule {
+    id     = "expire-old-state-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}

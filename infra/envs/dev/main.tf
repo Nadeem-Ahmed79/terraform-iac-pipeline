@@ -15,8 +15,11 @@ module "app" {
   source    = "../../modules/app"
   namespace = "demo"
   app_name  = "web"
-  image     = "nginx:1.27-alpine"
+  image     = "nginxinc/nginx-unprivileged:1.27-alpine"
   replicas  = 2
+
+  page_title = "Terraform IaC Platform"
+  env        = "dev"
 
   depends_on = [module.cluster]
 }

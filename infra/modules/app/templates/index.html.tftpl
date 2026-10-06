@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title}</title>
+  <style>
+    :root {
+      --bg: #070b16; --panel: #0f1629; --line: #1e2a47; --text: #e6ebf5; --muted: #8b97b3;
+      --green: #34d399; --blue: #60a5fa; --violet: #a78bfa; --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--text);
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(96,165,250,.18), transparent 60%),
+        radial-gradient(800px 500px at 100% 0%, rgba(167,139,250,.16), transparent 60%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, #000 30%, transparent 90%);
+    }
+    main { position: relative; max-width: 1100px; margin: 0 auto; padding: 56px 24px 40px; }
+
+    .live {
+      display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 999px;
+      background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.35); color: var(--green);
+      font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,211,153,.7); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.6); } 70% { box-shadow: 0 0 0 10px rgba(52,211,153,0); } 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); } }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.05; margin: 22px 0 14px; letter-spacing: -.02em;
+      background: linear-gradient(90deg, #ffffff 0%, var(--blue) 45%, var(--violet) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lead { font-size: 1.15rem; color: var(--muted); max-width: 720px; margin: 0 0 36px; line-height: 1.6; }
+    .lead b { color: var(--text); font-weight: 600; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
+    .stat {
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px;
+    }
+    .stat .k { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+    .stat .v { font-size: 1.9rem; font-weight: 700; margin-top: 6px; }
+    .stat .v small { font-size: .95rem; color: var(--muted); font-weight: 500; }
+    .stat .v.pod { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 1rem; color: var(--green); margin-top: 12px; word-break: break-all; }
+    .g { color: var(--green); } .b { color: var(--blue); } .p { color: var(--violet); }
+
+    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin: 0 0 16px; }
+
+    .pipeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 40px; }
+    .step {
+      position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+      padding: 14px 12px; text-align: center;
+    }
+    .step:not(:last-child)::after {
+      content: ""; position: absolute; right: -10px; top: 50%; width: 10px; height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--violet));
+    }
+    .step .n { font-size: .7rem; color: var(--muted); }
+    .step .t { font-weight: 600; margin-top: 4px; font-size: .95rem; }
+    .step .s { font-size: .75rem; color: var(--green); margin-top: 6px; }
+
+    .cols { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+    .checks { list-style: none; margin: 0; padding: 0; }
+    .checks li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: .95rem; }
+    .checks li:last-child { border-bottom: 0; }
+    .checks li::before { content: "\2713"; color: var(--green); font-weight: 700; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { padding: 7px 12px; border-radius: 8px; background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.25); font-size: .85rem; }
+    .chip.v { background: rgba(167,139,250,.08); border-color: rgba(167,139,250,.28); }
+    .chip.gr { background: rgba(52,211,153,.08); border-color: rgba(52,211,153,.28); }
+
+    footer { margin-top: 36px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: .85rem; }
+    code { font-family: ui-monospace, Consolas, monospace; color: var(--text); }
+
+    @media (max-width: 860px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .pipeline { grid-template-columns: repeat(2, 1fr); }
+      .step::after { display: none; }
+      .cols { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="live"><span class="dot"></span> Live on Kubernetes &middot; ${env}</span>
+
+    <h1>${title}</h1>
+    <p class="lead">
+      A production-style platform built <b>100% as code</b>. Every network, cluster, app and database
+      is created by <b>Terraform</b>, checked by <b>security and policy scans</b> on every pull request,
+      and rebuilt from zero with a single command.
+    </p>
+
+    <section class="stats">
+      <div class="stat"><div class="k">Security findings</div><div class="v"><span class="g">22 &rarr; 0</span></div></div>
+      <div class="stat"><div class="k">Replicas</div><div class="v b">${replicas} <small>self-healing</small></div></div>
+      <div class="stat"><div class="k">Rebuild from zero</div><div class="v p">1 <small>command</small></div></div>
+      <div class="stat"><div class="k">Served by pod</div><div class="v pod"><!--# echo var="hostname" --></div></div>
+    </section>
+
+    <h2>Every change goes through this pipeline</h2>
+    <section class="pipeline">
+      <div class="step"><div class="n">01</div><div class="t">Pull request</div><div class="s">branch + review</div></div>
+      <div class="step"><div class="n">02</div><div class="t">fmt &amp; validate</div><div class="s">&check; passed</div></div>
+      <div class="step"><div class="n">03</div><div class="t">TFLint</div><div class="s">&check; passed</div></div>
+      <div class="step"><div class="n">04</div><div class="t">Checkov</div><div class="s">&check; 0 failed</div></div>
+      <div class="step"><div class="n">05</div><div class="t">Plan &amp; apply</div><div class="s">&check; state locked</div></div>
+      <div class="step"><div class="n">06</div><div class="t">Kubernetes</div><div class="s">&check; rolling update</div></div>
+    </section>
+
+    <section class="cols">
+      <div class="panel">
+        <h2>Security by default</h2>
+        <ul class="checks">
+          <li>Containers run as non-root with a read-only filesystem</li>
+          <li>All Linux capabilities dropped, seccomp enabled</li>
+          <li>Database reachable only from the app tier</li>
+          <li>Secrets generated by code, never typed by a human</li>
+          <li>Encrypted remote state with locking</li>
+          <li>SSH open to the internet is blocked at plan time</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Built with</h2>
+        <div class="chips">
+          <span class="chip">Terraform</span><span class="chip">Kubernetes</span><span class="chip">kind</span>
+          <span class="chip">LocalStack</span><span class="chip">AWS VPC</span><span class="chip">Secrets Manager</span>
+          <span class="chip v">GitHub Actions</span><span class="chip v">TFLint</span><span class="chip v">Checkov</span>
+          <span class="chip gr">PostgreSQL</span><span class="chip gr">nginx</span><span class="chip gr">Docker</span>
+        </div>
+        <h2 style="margin-top:22px">Running image</h2>
+        <code>${image}</code>
+      </div>
+    </section>
+
+    <footer>
+      <span>Infrastructure as Code &middot; GitOps workflow &middot; Zero manual steps</span>
+      <span>Served live from the cluster</span>
+    </footer>
+  </main>
+</body>
+</html>

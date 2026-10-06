@@ -1,0 +1,13 @@
+server {
+    listen ${port};
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Server Side Includes: lets the page show which pod served it
+    ssi on;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

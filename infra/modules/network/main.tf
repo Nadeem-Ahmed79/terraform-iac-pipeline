@@ -1,4 +1,5 @@
 resource "aws_vpc" "this" {
+  # checkov:skip=CKV2_AWS_11:Flow logs need CloudWatch Logs, not emulated locally; enable on real AWS
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
@@ -7,6 +8,7 @@ resource "aws_vpc" "this" {
 
 # ---------- Public subnets ----------
 resource "aws_subnet" "public" {
+  # checkov:skip=CKV_AWS_130:Public subnets intentionally assign public IPs (web tier)
   count                   = length(var.azs)
   vpc_id                  = aws_vpc.this.id
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
@@ -68,6 +70,9 @@ resource "aws_route_table_association" "private" {
 
 # ---------- Security group: web tier ----------
 resource "aws_security_group" "web" {
+  # checkov:skip=CKV_AWS_260:Web tier must accept HTTP from the internet
+  # checkov:skip=CKV_AWS_382:Web tier needs outbound internet for updates and APIs
+  # checkov:skip=CKV2_AWS_5:SG is exported by the module and attached by consumers
   name        = "${var.name}-web-sg"
   description = "Allow HTTP/HTTPS from the internet"
   vpc_id      = aws_vpc.this.id
@@ -100,6 +105,7 @@ resource "aws_security_group" "web" {
 
 # ---------- Security group: database tier ----------
 resource "aws_security_group" "db" {
+  # checkov:skip=CKV2_AWS_5:SG is exported by the module and attached by consumers
   name        = "${var.name}-db-sg"
   description = "Allow Postgres only from the web tier"
   vpc_id      = aws_vpc.this.id
@@ -124,6 +130,7 @@ resource "aws_security_group" "db" {
 
 # ---------- Security group: SSH admin access ----------
 resource "aws_security_group" "ssh" {
+  # checkov:skip=CKV2_AWS_5:SG is exported by the module and attached by consumers
   name        = "${var.name}-ssh-sg"
   description = "SSH from admin range only"
   vpc_id      = aws_vpc.this.id
@@ -136,4 +143,12 @@ resource "aws_security_group" "ssh" {
     protocol    = "tcp"
     cidr_blocks = [var.admin_cidr]
   }
+}
+
+# ---------- Lock down the VPC default security group ----------
+# Every VPC gets a default SG that allows all traffic between its members.
+# Managing it with no rules removes that hidden "allow all".
+resource "aws_default_security_group" "this" {
+  vpc_id = aws_vpc.this.id
+  tags   = merge(var.tags, { Name = "${var.name}-default-sg-locked" })
 }

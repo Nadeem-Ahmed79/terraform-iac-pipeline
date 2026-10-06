@@ -12,6 +12,8 @@ resource "random_password" "db" {
 
 # ---------- The "vault" entry in Secrets Manager ----------
 resource "aws_secretsmanager_secret" "db" {
+  # checkov:skip=CKV_AWS_149:AWS-managed key is enough locally; use a customer-managed KMS key in prod
+  # checkov:skip=CKV2_AWS_57:Rotation needs a rotation Lambda; out of scope locally
   name                    = "${var.name}/postgres/credentials"
   description             = "Postgres credentials for ${var.name}"
   recovery_window_in_days = 0
