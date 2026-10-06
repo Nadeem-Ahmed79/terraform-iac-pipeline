@@ -20,3 +20,14 @@ module "app" {
 
   depends_on = [module.cluster]
 }
+
+module "database" {
+  source       = "../../modules/database"
+  name         = "dev"
+  namespace    = "data"
+  db_name      = "appdb"
+  db_user      = "appuser"
+  storage_size = "1Gi"
+
+  depends_on = [module.cluster]
+}

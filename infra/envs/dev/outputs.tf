@@ -21,3 +21,7 @@ output "kubeconfig_path" {
 output "app_namespace" {
   value = module.app.namespace
 }
+
+output "db_secret_name" {
+  value = module.database.secret_name
+}
