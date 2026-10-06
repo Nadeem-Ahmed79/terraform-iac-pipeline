@@ -60,7 +60,6 @@ jobs:
           directory: infra
           framework: terraform
           quiet: true
-          soft_fail: true
 
   # ---------- Job 5: policy unit tests ----------
   policy-tests:
